@@ -1,0 +1,88 @@
+:root {
+    --bg: #1a1c2c; --panel: #29366f; --ink: #f4f4f4; --muted: #94b0c2;
+    --accent: #ffcd75; --green: #38b764; --red: #b13e53; --cyan: #41a6f6;
+}
+* { box-sizing: border-box; }
+body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: "Press Start 2P", "Courier New", monospace; font-size: 11px; line-height: 1.8;
+    image-rendering: pixelated;
+}
+a { color: var(--cyan); }
+h1 { color: var(--accent); font-size: 18px; text-shadow: 3px 3px 0 #000; }
+h2 { font-size: 12px; color: var(--accent); }
+.muted { color: var(--muted); }
+main { max-width: 960px; margin: 0 auto; padding: 20px 14px 60px; }
+
+.topbar {
+    display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; align-items: center;
+    padding: 12px 18px; background: #000; border-bottom: 4px solid var(--accent);
+}
+.logo { color: var(--accent); text-decoration: none; font-size: 14px; text-shadow: 3px 3px 0 var(--red); }
+nav { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
+nav a { text-decoration: none; color: var(--ink); }
+nav a:hover { color: var(--accent); }
+form.inline { display: inline; margin: 0; }
+
+/* Hard-edged "pixel" borders using stacked box-shadows */
+.panel, .card, .badge, .flash, input, .btn {
+    border: 0;
+    box-shadow: 0 -4px 0 0 #000, 0 4px 0 0 #000, -4px 0 0 0 #000, 4px 0 0 0 #000;
+}
+.panel { background: var(--panel); padding: 16px; margin: 22px 4px; }
+.narrow { max-width: 420px; }
+.narrow label { display: block; margin-bottom: 14px; }
+input, select { display: block; width: 100%; margin-top: 6px; padding: 10px; background: #0d0f1c; color: var(--ink); font: inherit; border: 0; }
+
+.btn {
+    display: inline-block; padding: 10px 14px; background: var(--green); color: #000; font: inherit;
+    text-decoration: none; cursor: pointer; margin: 4px;
+}
+.btn:hover { background: var(--accent); }
+.btn:active { transform: translate(2px, 2px); }
+.btn.small { padding: 4px 8px; font-size: 9px; }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 22px; margin: 22px 4px; }
+.grid.small { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+.card { background: var(--panel); padding: 12px; color: var(--ink); text-decoration: none; }
+.card:hover { background: #3b5dc9; transform: translateY(-3px); }
+.poster {
+    height: 120px; display: flex; align-items: center; justify-content: center; font-size: 40px;
+    background: hsl(var(--hue), 60%, 40%);
+    background-image: repeating-linear-gradient(0deg, rgba(0,0,0,.2) 0 4px, transparent 4px 8px);
+    text-shadow: 4px 4px 0 #000;
+}
+
+.xpbar { display: block; height: 18px; background: #000; padding: 3px; }
+.xpbar.small { display: inline-block; width: 90px; height: 12px; padding: 2px; }
+.xpbar span { display: block; height: 100%; background: var(--accent); }
+
+.flash { padding: 10px 14px; margin: 14px 4px; background: var(--panel); }
+.flash.xp { background: #257179; }
+.flash.levelup { background: var(--accent); color: #000; animation: blink 0.6s steps(2) 4; }
+.flash.achievement { background: #5d275d; }
+.flash.success { background: var(--green); color: #000; }
+.flash.error { background: var(--red); }
+@keyframes blink { 50% { opacity: .4; } }
+
+.badge { padding: 10px; }
+.badge.on { background: #257179; }
+.badge.off { background: #333c57; opacity: .6; }
+
+table { width: 100%; border-collapse: collapse; }
+td { padding: 6px 8px; border-bottom: 2px dashed #3b5dc9; }
+
+.screen { text-align: center; background: var(--muted); color: #000; margin: 20px auto; max-width: 560px; padding: 6px; }
+.seats { overflow-x: auto; padding-bottom: 10px; }
+.seatrow { display: flex; gap: 6px; justify-content: center; margin-bottom: 6px; }
+.rowlabel { width: 20px; color: var(--muted); align-self: center; }
+.seat input { position: absolute; opacity: 0; width: 0; height: 0; }
+.seat span {
+    display: block; width: 28px; height: 28px; line-height: 28px; text-align: center; font-size: 8px;
+    background: var(--green); color: #000; cursor: pointer;
+}
+.seat input:checked + span { background: var(--accent); outline: 3px solid #fff; }
+.seat input:focus-visible + span { outline: 3px solid var(--cyan); }
+.seat.taken span { background: var(--red); cursor: not-allowed; opacity: .6; }
+
+.footer { text-align: center; color: var(--muted); padding: 20px; font-size: 9px; }
