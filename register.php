@@ -1,4 +1,6 @@
 <?php
+// Account-creation page: validate the submitted profile and password, store
+// a password hash, sign the new user in, and apply first-login game rewards.
 require_once __DIR__ . '/includes/bootstrap.php';
 
 if (current_user($pdo)) {
@@ -26,6 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!$errors) {
         try {
+            // Store only a one-way password hash; never write the raw password.
             $pdo->prepare('INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)')
                 ->execute([$username, $email, password_hash($password, PASSWORD_DEFAULT)]);
             $userId = (int) $pdo->lastInsertId();

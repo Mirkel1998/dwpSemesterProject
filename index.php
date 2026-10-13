@@ -1,6 +1,9 @@
 <?php
+// Movie-catalog home page: load the shared app setup, fetch movie details,
+// then render one linked card per movie using the common page header/footer.
 require_once __DIR__ . '/includes/bootstrap.php';
 
+// Join genres into a display string and find each movie's next future showing.
 $movies = $pdo->query(
     'SELECT m.movieID, m.title, m.release_date, m.rating,
             GROUP_CONCAT(DISTINCT g.genreName SEPARATOR ", ") AS genres,

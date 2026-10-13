@@ -1,9 +1,12 @@
 <?php
 
+// Centralizes MySQL connection setup so the application uses consistent
+// connection options and fails clearly when required settings are missing.
 final class Database
 {
     public static function connect(array $config): PDO
     {
+        // Refuse incomplete settings before constructing a connection string.
         foreach (['host', 'port', 'name', 'username'] as $key) {
             if (!isset($config[$key]) || !is_string($config[$key]) || $config[$key] === '') {
                 throw new InvalidArgumentException('Missing database configuration: ' . $key);
@@ -13,6 +16,7 @@ final class Database
             throw new InvalidArgumentException('Missing database configuration: password');
         }
 
+        // Use UTF-8 and disable emulated prepares for native parameter binding.
         $dsn = sprintf(
             'mysql:host=%s;port=%s;dbname=%s;charset=utf8mb4',
             $config['host'],

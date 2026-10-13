@@ -1,4 +1,5 @@
 <?php
+// Log out only after a valid form token, clear the session, and return home.
 require_once __DIR__ . '/includes/bootstrap.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

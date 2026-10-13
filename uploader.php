@@ -1,5 +1,9 @@
 <?php
+// Standalone image-upload demonstration: inspect an uploaded image, then use
+// Resizer to save a resized copy under img/. The form currently processes the
+// height option; the other choices are displayed but are not handled here.
 spl_autoload_register(function($class) {
+    // Load the demo's Resizer class from the adjacent source file.
     include __DIR__ . '/reziser.php';
 });
 define("MAX_SIZE", 30000000000);
@@ -7,6 +11,8 @@ $upmsg = array();
 
 if(isset($_POST['submit']))
     if ($_FILES['image']['name']) {
+        // Inspect the temporary upload and continue only for recognized
+        // JPEG, GIF, or PNG images smaller than the configured maximum.
         $imageName = $_FILES['image']['name'];
         $file = $_FILES['image']['tmp_name'];
         $imageType = getimagesize($file);
@@ -19,6 +25,7 @@ if(isset($_POST['submit']))
                $resOBJ = new Resizer();
                $resOBJ->load($file);
                if($_POST['resizetype'] == 'height') {
+                // Preserve the original aspect ratio while setting the height.
                 $height = $_POST['size'];
                 $resOBJ->resizeToHeight($height);
                 $resOBJ->save($storeImage);
@@ -29,6 +36,7 @@ if(isset($_POST['submit']))
     }
 ?>
 
+<!-- Multipart form lets the browser send an image file alongside resize options. -->
 <form name="imgup" method ="post" enctype="multipart/form-data" action="">
     Image <input type="file" name="image">
     Resize to: <select name="resizetype">

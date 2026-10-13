@@ -1,5 +1,7 @@
 <?php
 
+// Return MySQL settings from environment variables, using local XAMPP defaults
+// when unset. DB_PASSWORD is kept separate so it can be configured securely.
 // Defaults match a stock XAMPP install (root, empty password). Override with Apache SetEnv elsewhere.
 $password = getenv('DB_PASSWORD');
 

@@ -1,4 +1,6 @@
 <?php
+// Admin dashboard: require administrator access, list user accounts, and
+// handle account deletion requests before rendering the user-management table.
 require_once __DIR__ . '/includes/bootstrap.php';
 $admin = require_admin($pdo);
 
@@ -12,6 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         flash('error', 'You cannot delete your own account here.');
     } else {
         try {
+            // Remove the user's dependent records before deleting their account.
             $pdo->beginTransaction();
             foreach (['bookings', 'xp_log', 'user_achievements'] as $table) {
                 $pdo->prepare("DELETE FROM $table WHERE userID = ?")->execute([$targetId]);
@@ -28,6 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect('admin.php');
 }
 
+// Fetch public account fields only; password hashes are never displayed here.
 $users = $pdo->query(
     'SELECT userID, username, email, role, xp, level, created_at FROM users ORDER BY userID'
 )->fetchAll();

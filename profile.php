@@ -1,9 +1,12 @@
 <?php
+// Signed-in account page: process email/password changes, then load the user's
+// progress, achievements, tickets, and recent XP history for display.
 require_once __DIR__ . '/includes/bootstrap.php';
 $user = require_login($pdo);
 
 $settingsErrors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Require the current password for either account-setting update.
     csrf_check();
     $email = trim((string) ($_POST['email'] ?? ''));
     $newPassword = (string) ($_POST['password'] ?? '');
@@ -23,6 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!$settingsErrors) {
         try {
+            // Change the password only when a new one was supplied.
             $pdo->prepare('UPDATE users SET email = ? WHERE userID = ?')->execute([$email, $user['userID']]);
             if ($newPassword !== '') {
                 $pdo->prepare('UPDATE users SET password_hash = ? WHERE userID = ?')
@@ -36,6 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+// Fetch data for each section of the profile page.
 $emailStmt = $pdo->prepare('SELECT email FROM users WHERE userID = ?');
 $emailStmt->execute([$user['userID']]);
 $currentEmail = (string) $emailStmt->fetchColumn();

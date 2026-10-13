@@ -1,8 +1,12 @@
+-- Rebuild the cinema application's MySQL database, define its tables and
+-- relationships, then insert sample movie, theater, showing, and game data.
+-- Warning: the DROP DATABASE statement below deletes any existing movieDB.
 SET default_storage_engine=InnoDB;
 DROP DATABASE IF EXISTS movieDB;
 CREATE DATABASE movieDB;
 USE movieDB;
 
+-- Core catalog tables: movies, people/credits, genres, and their relations.
 CREATE TABLE `movies` (
    movieID INT not null auto_increment primary key,
    title VARCHAR(255),
@@ -134,6 +138,7 @@ INSERT INTO `movieGenreRelation` (relationID, movieID, genreID) VALUES
    (NULL, 10, 5);
 
 -- ===== Cinema + gamification =====
+-- Accounts keep password hashes, roles, XP, level, and daily-login streak data.
 CREATE TABLE `users` (
    userID INT not null auto_increment primary key,
    username VARCHAR(20) not null UNIQUE,
@@ -204,6 +209,7 @@ CREATE TABLE `user_achievements` (
    FOREIGN KEY (achievementID) REFERENCES `achievements`(achievementID)
 );
 
+-- Sample theaters and future showings used by the cinema pages.
 INSERT INTO `theaters` (name, city, seat_rows, seats_per_row) VALUES
    ('Pixel Palace', 'Copenhagen', 6, 10),
    ('Byte Biograf', 'Aarhus', 5, 8),
@@ -217,6 +223,7 @@ JOIN `theaters` t ON t.theaterID = (m.movieID % 3) + 1 OR t.theaterID = ((m.movi
 CROSS JOIN (SELECT 1 AS n UNION SELECT 2 UNION SELECT 3) d
 CROSS JOIN (SELECT '18:00:00' AS t UNION SELECT '21:00:00') s;
 
+-- Achievement definitions referenced by the Gamification PHP class.
 INSERT INTO `achievements` (code, name, description, xp_reward) VALUES
    ('WELCOME', 'Player One', 'Create an account.', 0),
    ('FIRST_TICKET', 'First Ticket', 'Book your first seat.', 50),

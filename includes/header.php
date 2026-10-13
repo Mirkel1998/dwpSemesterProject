@@ -1,8 +1,11 @@
 <?php
-// Expects $pdo (from bootstrap.php) and optional $pageTitle.
+
+// Shared page opening: expects $pdo from bootstrap.php and optional $pageTitle.
+// It reads the signed-in user and queued flash messages for the navigation bar.
 $navUser = current_user($pdo);
 $flashes = pull_flashes();
 ?>
+<!-- Site-wide navigation, including account links and the user's XP progress. -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -39,6 +42,7 @@ $flashes = pull_flashes();
     </nav>
 </header>
 <main>
+<!-- One-time status, error, and game-reward messages are shown above page content. -->
 <?php foreach ($flashes as $f): ?>
     <div class="flash <?= e($f['type']) ?>"><?= e($f['message']) ?></div>
 <?php endforeach; ?>

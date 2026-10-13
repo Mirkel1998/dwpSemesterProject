@@ -1,10 +1,13 @@
 <?php
+// Admin-only user editor: load an existing account when an ID is supplied,
+// validate changes, hash any new password, then save or show validation errors.
 require_once __DIR__ . '/includes/bootstrap.php';
 $admin = require_admin($pdo);
 
 $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT) ?: filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
 $editing = null;
 if ($id) {
+    // Do not select the password hash because this form never reveals it.
     $stmt = $pdo->prepare('SELECT userID, username, email, role, xp FROM users WHERE userID = ?');
     $stmt->execute([$id]);
     $editing = $stmt->fetch();
@@ -25,6 +28,7 @@ $form = [
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_check();
+    // Normalize submitted fields and constrain role/XP to allowed values.
     $form['username'] = trim((string) ($_POST['username'] ?? ''));
     $form['email'] = trim((string) ($_POST['email'] ?? ''));
     $form['role'] = $isSelf ? 'admin' : (($_POST['role'] ?? '') === 'admin' ? 'admin' : 'user');
@@ -46,6 +50,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!$errors) {
         try {
+            // Keep level in sync with the submitted XP and only replace an
+            // existing password when the admin entered a non-empty new one.
             $level = Gamification::levelForXp((int) $form['xp']);
             if ($editing) {
                 $pdo->prepare('UPDATE users SET username = ?, email = ?, role = ?, xp = ?, level = ? WHERE userID = ?')

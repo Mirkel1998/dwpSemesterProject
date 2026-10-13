@@ -1,6 +1,9 @@
 <?php
+// Movie details page: validate the requested movie, fetch its cast and
+// upcoming showtimes, and render them with the shared site layout.
 require_once __DIR__ . '/includes/bootstrap.php';
 
+// Read the movie identifier from the URL and return 404 if it is invalid or absent.
 $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 $stmt = $pdo->prepare('SELECT movieID, title, release_date, rating FROM movies WHERE movieID = ?');
 $stmt->execute([$id]);
@@ -10,6 +13,7 @@ if (!$movie) {
     exit('Movie not found.');
 }
 
+// Load the people and their credited roles for this movie.
 $cast = $pdo->prepare(
     'SELECT c.firstName, c.lastName, r.relationToMovie
      FROM castMovieRelation r JOIN `cast` c ON c.castID = r.castID
@@ -18,6 +22,7 @@ $cast = $pdo->prepare(
 $cast->execute([$id]);
 $cast = $cast->fetchAll();
 
+// Load future showings with theater details and the number of seats already booked.
 $shows = $pdo->prepare(
     'SELECT s.showtimeID, s.starts_at, s.price, t.name, t.city,
             t.seat_rows * t.seats_per_row AS capacity,

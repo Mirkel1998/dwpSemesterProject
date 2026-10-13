@@ -1,6 +1,9 @@
 <?php
+// Public high-score page: fetch the ten users with the most XP and render
+// their rank, level title, and score in the shared site layout.
 require_once __DIR__ . '/includes/bootstrap.php';
 
+// User ID breaks ties consistently when two users have the same XP.
 $top = $pdo->query('SELECT username, xp, level FROM users ORDER BY xp DESC, userID LIMIT 10')->fetchAll();
 
 $pageTitle = 'Ranks';

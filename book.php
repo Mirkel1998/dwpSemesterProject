@@ -1,9 +1,13 @@
 <?php
+// Seat-booking page: require a signed-in user, validate selected seats, and
+// save the booking and related XP/achievement updates as one transaction.
 require_once __DIR__ . '/includes/bootstrap.php';
 $user = require_login($pdo);
 
+// Limit the number of seats a user can submit in one booking.
 const MAX_SEATS = 8;
 
+// Accept the showing ID from either the initial URL or the submitted form.
 $id = filter_input(INPUT_GET, 'showtime', FILTER_VALIDATE_INT) ?: filter_input(INPUT_POST, 'showtime', FILTER_VALIDATE_INT);
 $stmt = $pdo->prepare(
     'SELECT s.showtimeID, s.starts_at, s.price, m.title, t.name, t.city, t.seat_rows, t.seats_per_row
@@ -19,12 +23,14 @@ if (!$show) {
     exit('Showing not found or already started.');
 }
 
+// The user's current level determines the discounted price for this showing.
 $discount = Gamification::discountPercent((int) $user['level']);
 $price = (int) round($show['price'] * (100 - $discount) / 100);
 $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_check();
+    // Keep only distinct seat coordinates that fit inside this theater's layout.
     $seats = [];
     foreach ((array) ($_POST['seats'] ?? []) as $raw) {
         if (is_string($raw) && preg_match('/^(\d{1,2})-(\d{1,2})$/', $raw, $mm)) {
@@ -42,6 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'Max ' . MAX_SEATS . ' seats per booking.';
     } else {
         try {
+            // Save every seat and award the booking rewards atomically.
             $pdo->beginTransaction();
             $insert = $pdo->prepare(
                 'INSERT INTO bookings (userID, showtimeID, seat_row, seat_number, price_paid) VALUES (?, ?, ?, ?, ?)'
@@ -67,6 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+// Build a lookup of occupied seats so the form can disable them.
 $takenStmt = $pdo->prepare('SELECT seat_row, seat_number FROM bookings WHERE showtimeID = ?');
 $takenStmt->execute([$show['showtimeID']]);
 $taken = [];

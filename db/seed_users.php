@@ -1,4 +1,6 @@
 <?php
+// CLI-only development seeder: insert the sample accounts or reset their
+// passwords and game progress to the values below. It does not run via HTTP.
 // Run from CLI: php db/seed_users.php  (creates or resets the test accounts)
 declare(strict_types=1);
 
@@ -16,6 +18,8 @@ $users = [
     ['user3', 'user3@example.com', '123456', 'user',  0,  1, 0],
 ];
 
+// Insert each sample account, updating the existing account on duplicate name
+// or email; password_hash() ensures the database receives hashes, not plaintext.
 $stmt = $pdo->prepare(
     'INSERT INTO users (username, email, password_hash, role, xp, level, login_streak)
      VALUES (?, ?, ?, ?, ?, ?, ?)

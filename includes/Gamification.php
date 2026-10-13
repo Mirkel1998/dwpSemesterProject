@@ -1,25 +1,31 @@
 <?php
 
+// Contains the cinema game's XP, level, daily-login, booking, and achievement
+// rules. Callers pass the shared PDO connection so rewards use the same database.
 final class Gamification
 {
+    // Display names for levels; higher levels reuse the final title.
     private const TITLES = [
-        1 => 'Rookie', 2 => 'Popcorn Pawn', 3 => 'Ticket Tinkerer', 4 => 'Seat Scout',
+        1 => 'Noob', 2 => 'Popcorn Pawn', 3 => 'Ticket Tinkerer', 4 => 'Seat Scout',
         5 => 'Reel Ranger', 6 => 'Cinema Knight', 7 => 'Matinee Mage', 8 => 'Premiere Paladin',
         9 => 'Box Office Boss', 10 => 'Legendary Cinephile',
     ];
 
     public static function levelForXp(int $xp): int
     {
+        // Levels rise every 100 * (level - 1)^2 XP.
         return (int) floor(sqrt(max(0, $xp) / 100)) + 1;
     }
 
     public static function xpForLevel(int $level): int
     {
+        // Return the XP threshold at which the requested level begins.
         return 100 * ($level - 1) ** 2;
     }
 
     public static function title(int $level): string
     {
+        // Cap title lookup at the last configured title.
         return self::TITLES[min($level, count(self::TITLES))];
     }
 
@@ -31,6 +37,7 @@ final class Gamification
 
     public static function award(PDO $pdo, int $userId, int $amount, string $reason): void
     {
+        // Add positive XP to the account and history, then synchronize its level.
         if ($amount > 0) {
             $pdo->prepare('UPDATE users SET xp = xp + ? WHERE userID = ?')->execute([$amount, $userId]);
             $pdo->prepare('INSERT INTO xp_log (userID, amount, reason) VALUES (?, ?, ?)')
@@ -54,6 +61,7 @@ final class Gamification
 
     public static function unlock(PDO $pdo, int $userId, string $code): void
     {
+        // Insert an achievement once per user; grant its reward only on first unlock.
         $stmt = $pdo->prepare('SELECT achievementID, name, xp_reward FROM achievements WHERE code = ?');
         $stmt->execute([$code]);
         $achievement = $stmt->fetch();
@@ -71,6 +79,7 @@ final class Gamification
 
     public static function onRegister(PDO $pdo, int $userId): void
     {
+        // A new account gets a welcome award, the welcome achievement, and login rewards.
         self::award($pdo, $userId, 50, 'Welcome bonus');
         self::unlock($pdo, $userId, 'WELCOME');
         self::onLogin($pdo, $userId);
@@ -79,6 +88,7 @@ final class Gamification
     // Daily login bonus with a streak multiplier (max 7 days).
     public static function onLogin(PDO $pdo, int $userId): void
     {
+        // Give at most one daily award, increasing the streak only on consecutive days.
         $stmt = $pdo->prepare('SELECT login_streak, last_login_date FROM users WHERE userID = ?');
         $stmt->execute([$userId]);
         $user = $stmt->fetch();
@@ -101,6 +111,7 @@ final class Gamification
 
     public static function onBooking(PDO $pdo, int $userId, int $seatCount, string $startsAt): void
     {
+        // Reward the booking and unlock any milestones it satisfies.
         self::award($pdo, $userId, 50 + 10 * $seatCount, "Booked $seatCount seat(s)");
 
         $stmt = $pdo->prepare('SELECT COUNT(DISTINCT showtimeID) FROM bookings WHERE userID = ?');

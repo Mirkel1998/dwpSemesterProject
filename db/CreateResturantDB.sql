@@ -1,8 +1,12 @@
+-- Rebuild a separate sample restaurant-booking database, including example
+-- customers, locations, tables, reservations, and report queries.
+-- Warning: the DROP DATABASE statement below deletes any existing resturantDB.
 SET default_storage_engine=InnoDB;
 DROP DATABASE IF EXISTS resturantDB;
 CREATE DATABASE resturantDB;
 USE resturantDB;
 
+-- Customers make restaurant reservations for a selected table and time.
 CREATE TABLE `customers` (
    customerID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
    firstName VARCHAR(100) NOT NULL,
@@ -11,6 +15,7 @@ CREATE TABLE `customers` (
    phone VARCHAR(30)
 );
 
+-- A restaurant table belongs to a named area such as the terrace or dining room.
 CREATE TABLE `restaurantLocations` (
    locationID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
    locationName VARCHAR(100) NOT NULL UNIQUE
@@ -25,6 +30,7 @@ CREATE TABLE `restaurantTables` (
    FOREIGN KEY (locationID) REFERENCES `restaurantLocations`(locationID)
 );
 
+-- A booking connects a customer to a table, date/time, party size, and status.
 CREATE TABLE `bookings` (
    bookingID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
    customerID INT NOT NULL,
@@ -41,6 +47,7 @@ CREATE TABLE `bookings` (
    FOREIGN KEY (tableID) REFERENCES `restaurantTables`(tableID)
 );
 
+-- Seed records make the sample queries below runnable immediately.
 INSERT INTO `customers` (customerID, firstName, lastName, email, phone) VALUES
    (NULL, 'Olivia', 'Bennett', 'olivia.bennett@example.com', '+45 20 11 22 33'),
    (NULL, 'Noah', 'Andersen', 'noah.andersen@example.com', '+45 21 34 56 78'),
@@ -102,5 +109,4 @@ JOIN `customers` AS c ON c.customerID = b.customerID
 WHERE b.tableID = @tableID
   AND b.bookingDate = @bookingDate
 ORDER BY b.bookingTime;
-
 
