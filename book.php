@@ -50,16 +50,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             // Save every seat and award the booking rewards atomically.
             $pdo->beginTransaction();
+            $bookingRef = bin2hex(random_bytes(16));
             $insert = $pdo->prepare(
-                'INSERT INTO bookings (userID, showtimeID, seat_row, seat_number, price_paid) VALUES (?, ?, ?, ?, ?)'
+                'INSERT INTO bookings (userID, showtimeID, booking_ref, seat_row, seat_number, price_paid)
+                 VALUES (?, ?, ?, ?, ?, ?)'
             );
             foreach ($seats as [$r, $n]) {
-                $insert->execute([$user['userID'], $show['showtimeID'], $r, $n, $price]);
+                $insert->execute([$user['userID'], $show['showtimeID'], $bookingRef, $r, $n, $price]);
             }
             Gamification::onBooking($pdo, (int) $user['userID'], count($seats), $show['starts_at']);
             $pdo->commit();
             flash('success', 'Booked ' . count($seats) . ' seat(s) for ' . $show['title'] . ' - ' . count($seats) * $price . ' kr.');
-            redirect('profile.php');
+            redirect('profile.php?view=tickets');
         } catch (PDOException $ex) {
             $pdo->rollBack();
             // Discard flashes queued by the rolled-back transaction.
@@ -85,15 +87,23 @@ foreach ($takenStmt as $row) {
 $pageTitle = 'Book ' . $show['title'];
 require __DIR__ . '/includes/header.php';
 ?>
-<h1>BOOK: <?= e($show['title']) ?></h1>
-<p class="muted"><?= e($show['name']) ?>, <?= e($show['city']) ?> &bull; <?= e(date('D j M, H:i', strtotime($show['starts_at']))) ?></p>
-<p>Ticket: <?= $price ?> kr<?= $discount ? " ($discount% level discount)" : '' ?>. Earn 50 XP + 10 per seat.</p>
+<header class="booking-intro">
+    <p class="eyebrow">PIXEL CINEMA &bull; SEAT SELECTION</p>
+    <h1><?= e($show['title']) ?></h1>
+    <p class="muted"><?= e($show['name']) ?>, <?= e($show['city']) ?> &bull; <?= e(date('D j M, H:i', strtotime($show['starts_at']))) ?></p>
+    <p>Tickets <?= $price ?> kr each<?= $discount ? " ($discount% member discount)" : '' ?>. Earn 50 XP + 10 per seat.</p>
+</header>
 <?php foreach ($errors as $err): ?><div class="flash error"><?= e($err) ?></div><?php endforeach; ?>
 
-<form method="post">
+<form method="post" class="panel booking-panel" data-booking-form data-ticket-price="<?= $price ?>">
     <?= csrf_field() ?>
     <input type="hidden" name="showtime" value="<?= (int) $show['showtimeID'] ?>">
     <div class="screen">SCREEN</div>
+    <div class="seat-legend" aria-label="Seat availability">
+        <span><i class="seat-key" aria-hidden="true"></i> Available</span>
+        <span><i class="seat-key selected" aria-hidden="true"></i> Selected</span>
+        <span><i class="seat-key taken" aria-hidden="true"></i> Taken</span>
+    </div>
     <div class="seats">
     <?php for ($r = 1; $r <= $show['seat_rows']; $r++): ?>
         <div class="seatrow">
@@ -108,6 +118,10 @@ require __DIR__ . '/includes/header.php';
         </div>
     <?php endfor; ?>
     </div>
-    <button class="btn" type="submit">Confirm booking</button>
+    <div class="booking-submit">
+        <p aria-live="polite"><strong data-seat-count>0 seats</strong> selected &bull; Total <strong data-booking-total><?= $price ?> kr</strong></p>
+        <button class="btn" type="submit">Continue to booking</button>
+    </div>
 </form>
+<script src="styling/booking.js" defer></script>
 <?php require __DIR__ . '/includes/footer.php'; ?>

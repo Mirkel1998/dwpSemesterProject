@@ -37,11 +37,17 @@ $shows = $shows->fetchAll();
 $pageTitle = $movie['title'];
 require __DIR__ . '/includes/header.php';
 ?>
-<h1><?= e($movie['title']) ?></h1>
-<p class="muted">Released <?= e($movie['release_date']) ?> &bull; <?= $movie['rating'] !== null ? '&#9733; ' . e(number_format((float) $movie['rating'], 1)) . '/10' : 'Not rated' ?></p>
+<header class="film-heading">
+    <div>
+        <p class="eyebrow">PIXEL CINEMA &bull; FILM GUIDE</p>
+        <h1><?= e($movie['title']) ?></h1>
+    </div>
+    <p class="muted">Released <?= e($movie['release_date']) ?> &bull; <?= $movie['rating'] !== null ? '&#9733; ' . e(number_format((float) $movie['rating'], 1)) . '/10' : 'Not rated' ?></p>
+</header>
 
-<section class="panel">
+<section class="panel cast-panel">
     <h2>CAST &amp; CREW</h2>
+    <?php if (!$cast): ?><p class="muted">Cast details are not available yet.</p><?php endif; ?>
     <ul>
     <?php foreach ($cast as $c): ?>
         <li><?= e($c['firstName'] . ' ' . $c['lastName']) ?> <span class="muted">(<?= e($c['relationToMovie']) ?>)</span></li>
@@ -49,10 +55,15 @@ require __DIR__ . '/includes/header.php';
     </ul>
 </section>
 
-<section class="panel">
+<section class="panel showtimes-panel">
     <h2>SHOWTIMES</h2>
-    <?php if (!$shows): ?><p>No upcoming showings.</p><?php endif; ?>
+    <?php if (!$shows): ?><p class="muted">There are no upcoming showtimes for this film yet. Check back soon.</p><?php endif; ?>
+    <div class="showtimes-table">
     <table>
+        <?php if ($shows): ?>
+        <thead><tr><th>Date &amp; time</th><th>Cinema</th><th>Ticket</th><th>Availability</th><th><span class="visually-hidden">Book seats</span></th></tr></thead>
+        <?php endif; ?>
+        <tbody>
         <?php foreach ($shows as $s): $left = (int) $s['capacity'] - (int) $s['taken']; ?>
         <tr>
             <td><?= e(date('D j M, H:i', strtotime($s['starts_at']))) ?></td>
@@ -62,6 +73,8 @@ require __DIR__ . '/includes/header.php';
             <td><?= $left > 0 ? '<a class="btn small" href="book.php?showtime=' . (int) $s['showtimeID'] . '">Book</a>' : 'SOLD OUT' ?></td>
         </tr>
         <?php endforeach; ?>
+        </tbody>
     </table>
+    </div>
 </section>
 <?php require __DIR__ . '/includes/footer.php'; ?>

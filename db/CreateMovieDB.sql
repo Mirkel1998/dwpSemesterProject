@@ -174,11 +174,13 @@ CREATE TABLE `bookings` (
    bookingID INT not null auto_increment primary key,
    userID INT not null,
    showtimeID INT not null,
+   booking_ref CHAR(32) NULL,
    seat_row INT not null,
    seat_number INT not null,
    price_paid INT not null,
    created_at TIMESTAMP not null default CURRENT_TIMESTAMP,
    UNIQUE KEY one_seat_per_showing (showtimeID, seat_row, seat_number),
+   KEY bookings_user_ref (userID, booking_ref),
    FOREIGN KEY (userID) REFERENCES `users`(userID),
    FOREIGN KEY (showtimeID) REFERENCES `showtimes`(showtimeID)
 );
