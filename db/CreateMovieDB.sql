@@ -43,7 +43,8 @@ CREATE TABLE `movieGenreRelation` (
    FOREIGN KEY (genreID) REFERENCES `genre`(genreID)
 );
 
-INSERT INTO `genre` (genreID, genreName) VALUES (NULL, 'Action'), (NULL, 'Comedy'), (NULL, 'Drama'), (NULL, 'Horror'), (NULL, 'Romance');
+INSERT INTO `genre` (genreID, genreName) VALUES
+   (NULL, 'Action'), (NULL, 'Comedy'), (NULL, 'Drama'), (NULL, 'Horror'), (NULL, 'Romance'), (NULL, 'Sci-Fi');
 INSERT INTO `movies` (movieID, title, release_date, rating) VALUES
    (NULL, 'Inception', '2010-07-16', 8.8),
    (NULL, 'The Dark Knight', '2008-07-18', 9.0),
@@ -135,7 +136,10 @@ INSERT INTO `movieGenreRelation` (relationID, movieID, genreID) VALUES
    (NULL, 7, 3),
    (NULL, 8, 3),
    (NULL, 9, 3),
-   (NULL, 10, 5);
+   (NULL, 10, 5),
+   (NULL, 1, 6),
+   (NULL, 3, 6),
+   (NULL, 6, 6);
 
 -- ===== Cinema + gamification =====
 -- Accounts keep password hashes, roles, XP, level, and daily-login streak data.
@@ -150,6 +154,20 @@ CREATE TABLE `users` (
    login_streak INT not null default 0,
    last_login_date DATE NULL,
    created_at TIMESTAMP not null default CURRENT_TIMESTAMP
+);
+
+-- Optional contact module: messages submitted through contact.php.
+CREATE TABLE `contact_messages` (
+   contactID INT not null auto_increment primary key,
+   userID INT NULL,
+   name VARCHAR(100) not null,
+   email VARCHAR(255) not null,
+   subject VARCHAR(150) not null,
+   message TEXT not null,
+   status ENUM('new','read') not null default 'new',
+   created_at TIMESTAMP not null default CURRENT_TIMESTAMP,
+   KEY contact_messages_status_created (status, created_at),
+   FOREIGN KEY (userID) REFERENCES `users`(userID) ON DELETE SET NULL
 );
 
 CREATE TABLE `theaters` (

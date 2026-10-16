@@ -41,6 +41,7 @@ require __DIR__ . '/includes/header.php';
 ?>
 <h1>ADMIN PANEL</h1>
 <a class="btn" href="admin_user.php">+ New user</a>
+<a class="btn" href="contact_messages.php">Contact messages</a>
 <section class="panel">
     <table>
         <tr><td>ID</td><td>User</td><td>Email</td><td>Role</td><td>LV / XP</td><td></td></tr>

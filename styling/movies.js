@@ -12,7 +12,17 @@
     var sort = document.querySelector("[data-movie-sort]");
     var resultCount = document.querySelector("[data-result-count]");
     var emptyResults = document.querySelector("[data-empty-results]");
-    var activeGenre = "all";
+    var requestedGenre = new URLSearchParams(window.location.search).get("genre");
+    var selectedGenre = genreButtons.find(function (button) {
+        return button.dataset.genre === requestedGenre;
+    });
+    var activeGenre = selectedGenre ? selectedGenre.dataset.genre : "all";
+
+    genreButtons.forEach(function (button) {
+        var isActive = button.dataset.genre === activeGenre;
+        button.classList.toggle("is-active", isActive);
+        button.setAttribute("aria-pressed", String(isActive));
+    });
 
     function applyFilters() {
         var query = search.value.trim().toLocaleLowerCase();
@@ -32,6 +42,11 @@
         });
 
         resultCount.textContent = visibleCount + (visibleCount === 1 ? " film" : " films");
+        if (activeGenre !== "all" && visibleCount === 0) {
+            emptyResults.textContent = "No " + activeGenre + " films are in the programme yet. Try another genre.";
+        } else {
+            emptyResults.textContent = "No films match those filters. Try another search or genre.";
+        }
         emptyResults.hidden = visibleCount !== 0;
     }
 
@@ -67,4 +82,6 @@
         });
         applyFilters();
     });
+
+    applyFilters();
 })();
