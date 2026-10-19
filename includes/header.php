@@ -15,6 +15,7 @@ $mascotCounts = [
     'faq' => 1,
     'contact' => 2,
     'contact_messages' => 3,
+    'admin_showtimes' => 2,
     'movie' => 2,
     'book' => 3,
     'profile' => 2,
