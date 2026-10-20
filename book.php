@@ -24,7 +24,7 @@ if (!$show) {
 }
 
 // The user's current level determines the discounted price for this showing.
-$discount = Gamification::discountPercent((int) $user['level']);
+$discount = LevelRules::discountPercent((int) $user['level']);
 $price = (int) round($show['price'] * (100 - $discount) / 100);
 $errors = [];
 

@@ -1394,6 +1394,23 @@ td { transition: background-color var(--motion-time) ease; }
     .day-panel { margin-bottom: 0; }
     .day-detail .eyebrow { margin: 0 0 2px; color: var(--neon-cyan); font-size: 16px; }
     .day-detail h2 { margin: 0 0 14px; }
+    .day-detail-summary {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        justify-content: space-between;
+        cursor: pointer;
+        list-style: none;
+    }
+    .day-detail-summary::-webkit-details-marker { display: none; }
+    .day-detail-summary:focus-visible { outline: 2px solid var(--neon-cyan); outline-offset: 4px; border-radius: 4px; }
+    .day-detail-summary > div:first-child { min-width: 0; }
+    .day-detail-summary h2 { margin-bottom: 0; }
+    .day-detail-summary::after { flex: none; color: var(--neon-cyan); content: "+"; font-size: 24px; }
+    .day-detail[open] > .day-detail-summary::after { content: "\2212"; }
+    .day-detail-count { color: var(--muted); font-size: 16px; white-space: nowrap; }
+    .day-detail[open] > .day-list,
+    .day-detail[open] > .day-empty { margin-top: 14px; }
     .day-empty { margin: 8px 0 4px; padding: 16px; color: var(--muted); text-align: center; border: 1px dashed rgba(169, 234, 255, .3); border-radius: 14px; }
     .day-list { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
     .day-show {

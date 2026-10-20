@@ -42,8 +42,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$ticketsOnly) {
 }
 
 $lvl = (int) $user['level'];
-$base = Gamification::xpForLevel($lvl);
-$next = Gamification::xpForLevel($lvl + 1);
+$base = LevelRules::xpForLevel($lvl);
+$next = LevelRules::xpForLevel($lvl + 1);
 $pct = (int) round(((int) $user['xp'] - $base) / ($next - $base) * 100);
 
 if (!$ticketsOnly) {
@@ -91,7 +91,7 @@ require __DIR__ . '/includes/header.php';
     <p class="eyebrow">PIXEL CINEMA &bull; BOOKING CONFIRMED</p>
     <div class="ticket-user">
         <h1><?= e($user['username']) ?></h1>
-        <span class="ticket-level">LEVEL <?= $lvl ?> &bull; <?= e(Gamification::title($lvl)) ?></span>
+        <span class="ticket-level">LEVEL <?= $lvl ?> &bull; <?= e(LevelRules::title($lvl)) ?></span>
     </div>
 </header>
 <section class="panel my-tickets-panel">
@@ -128,9 +128,9 @@ require __DIR__ . '/includes/header.php';
 <?php else: ?>
 <h1><?= e($user['username']) ?></h1>
 <section class="panel">
-    <h2>LV <?= $lvl ?> &ndash; <?= e(Gamification::title($lvl)) ?></h2>
+    <h2>LV <?= $lvl ?> &ndash; <?= e(LevelRules::title($lvl)) ?></h2>
     <div class="xpbar"><span style="width:<?= $pct ?>%"></span></div>
-    <p><?= (int) $user['xp'] ?> / <?= $next ?> XP &bull; Login streak: <?= (int) $user['login_streak'] ?> day(s) &bull; Ticket discount: <?= Gamification::discountPercent($lvl) ?>%</p>
+    <p><?= (int) $user['xp'] ?> / <?= $next ?> XP &bull; Login streak: <?= (int) $user['login_streak'] ?> day(s) &bull; Ticket discount: <?= LevelRules::discountPercent($lvl) ?>%</p>
 </section>
 
 <section class="panel">

@@ -52,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             // Keep level in sync with the submitted XP and only replace an
             // existing password when the admin entered a non-empty new one.
-            $level = Gamification::levelForXp((int) $form['xp']);
+            $level = LevelRules::levelForXp((int) $form['xp']);
             if ($editing) {
                 $pdo->prepare('UPDATE users SET username = ?, email = ?, role = ?, xp = ?, level = ? WHERE userID = ?')
                     ->execute([$form['username'], $form['email'], $form['role'], $form['xp'], $level, $id]);

@@ -16,7 +16,7 @@ require __DIR__ . '/includes/header.php';
         <tr>
             <td><?= $i + 1 ?>.</td>
             <td><?= e($row['username']) ?></td>
-            <td>LV <?= (int) $row['level'] ?> <span class="muted"><?= e(Gamification::title((int) $row['level'])) ?></span></td>
+            <td>LV <?= (int) $row['level'] ?> <span class="muted"><?= e(LevelRules::title((int) $row['level'])) ?></span></td>
             <td><?= (int) $row['xp'] ?> XP</td>
         </tr>
     <?php endforeach; ?>

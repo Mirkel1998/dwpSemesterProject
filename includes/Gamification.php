@@ -1,40 +1,9 @@
 <?php
 
-// Contains the cinema game's XP, level, daily-login, booking, and achievement
-// rules. Callers pass the shared PDO connection so rewards use the same database.
+// Applies XP awards, daily-login, booking, and achievement rewards.
+// Callers pass the shared PDO connection so rewards use the same database.
 final class Gamification
 {
-    // Display names for levels; higher levels reuse the final title.
-    private const TITLES = [
-        1 => 'Noob', 2 => 'Popcorn Pawn', 3 => 'Ticket Tinkerer', 4 => 'Seat Scout',
-        5 => 'Reel Ranger', 6 => 'Cinema Knight', 7 => 'Matinee Mage', 8 => 'Premiere Paladin',
-        9 => 'Box Office Boss', 10 => 'Legendary Cinephile',
-    ];
-
-    public static function levelForXp(int $xp): int
-    {
-        // Levels rise every 100 * (level - 1)^2 XP.
-        return (int) floor(sqrt(max(0, $xp) / 100)) + 1;
-    }
-
-    public static function xpForLevel(int $level): int
-    {
-        // Return the XP threshold at which the requested level begins.
-        return 100 * ($level - 1) ** 2;
-    }
-
-    public static function title(int $level): string
-    {
-        // Cap title lookup at the last configured title.
-        return self::TITLES[min($level, count(self::TITLES))];
-    }
-
-    // Each level above 1 gives 2% off tickets, capped at 20%.
-    public static function discountPercent(int $level): int
-    {
-        return min($level - 1, 10) * 2;
-    }
-
     public static function award(PDO $pdo, int $userId, int $amount, string $reason): void
     {
         // Add positive XP to the account and history, then synchronize its level.
@@ -48,11 +17,11 @@ final class Gamification
         $stmt = $pdo->prepare('SELECT xp, level FROM users WHERE userID = ?');
         $stmt->execute([$userId]);
         $user = $stmt->fetch();
-        $newLevel = self::levelForXp((int) $user['xp']);
+        $newLevel = LevelRules::levelForXp((int) $user['xp']);
 
         if ($newLevel > (int) $user['level']) {
             $pdo->prepare('UPDATE users SET level = ? WHERE userID = ?')->execute([$newLevel, $userId]);
-            flash('levelup', "LEVEL UP! You are now level $newLevel: " . self::title($newLevel));
+            flash('levelup', "LEVEL UP! You are now level $newLevel: " . LevelRules::title($newLevel));
             if ($newLevel >= 5) {
                 self::unlock($pdo, $userId, 'LEVEL_5');
             }

@@ -114,6 +114,8 @@ $showsStmt = $pdo->prepare(
      GROUP BY s.showtimeID, s.movieID, s.theaterID, s.starts_at, s.price,
               m.title, t.name, t.city
      ORDER BY s.starts_at, t.name, m.title'
+
+     /* Fetch showtimes within the specified date range for the calendar view MAKE THIS A COMPONENT FOR IT SELF  */
 );
 $showsStmt->execute([$gridStart->format('Y-m-d') . ' 00:00:00', $gridEnd->modify('+1 day')->format('Y-m-d') . ' 00:00:00']);
 $showsByDate = [];
@@ -192,9 +194,14 @@ require __DIR__ . '/includes/header.php';
     <?php for ($cursor = $gridStart; $cursor <= $gridEnd; $cursor = $cursor->modify('+1 day')):
         $key = $cursor->format('Y-m-d');
         $dayShows = $showsByDate[$key] ?? []; ?>
-    <div class="day-detail" data-day-panel="<?= e($key) ?>" <?= $key === $selectedKey ? '' : 'hidden' ?>>
-        <p class="eyebrow"><?= e(strtoupper($cursor->format('l'))) ?></p>
-        <h2><?= e($cursor->format('F j, Y')) ?></h2>
+    <details class="day-detail" data-day-panel="<?= e($key) ?>" <?= $key === $selectedKey ? '' : 'hidden' ?>>
+        <summary class="day-detail-summary">
+            <div>
+                <span class="eyebrow"><?= e(strtoupper($cursor->format('l'))) ?></span>
+                <h2><?= e($cursor->format('F j, Y')) ?></h2>
+            </div>
+            <span class="day-detail-count"><?= count($dayShows) ?> showtime<?= count($dayShows) === 1 ? '' : 's' ?></span>
+        </summary>
         <?php if (!$dayShows): ?>
             <p class="day-empty">No showtimes yet. Add the first one below.</p>
         <?php endif; ?>
@@ -210,7 +217,7 @@ require __DIR__ . '/includes/header.php';
             </li>
             <?php endforeach; ?>
         </ul>
-    </div>
+    </details>
     <?php endfor; ?>
 </section>
 

@@ -52,8 +52,8 @@ $mascotCount = $mascotCounts[$mascotPage] ?? 1;
         <a href="contact.php">Contact</a>
         <?php if ($navUser):
             $lvl = (int) $navUser['level'];
-            $base = Gamification::xpForLevel($lvl);
-            $next = Gamification::xpForLevel($lvl + 1);
+            $base = LevelRules::xpForLevel($lvl);
+            $next = LevelRules::xpForLevel($lvl + 1);
             $pct = (int) round(((int) $navUser['xp'] - $base) / ($next - $base) * 100);
             ?>
             <span class="xpbar small" title="<?= (int) $navUser['xp'] ?> / <?= $next ?> XP"><span style="width:<?= $pct ?>%"></span></span>
