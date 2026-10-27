@@ -746,6 +746,21 @@ tr:hover td { background: rgba(177, 169, 255, .05); }
 .booking-submit { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; margin-top: 20px; padding-top: 14px; }
 .booking-submit p { margin: 0; color: var(--muted); }
 .booking-submit strong { color: var(--ink); }
+.pay-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 18px; max-width: 900px; margin: 18px auto; }
+.pay-summary h2, .pay-form h2 { margin-top: 0; }
+.pay-summary dl { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px 14px; margin: 0; }
+.pay-summary dt { color: var(--muted); }
+.pay-summary dd { margin: 0; color: var(--ink); }
+.pay-total { margin: 18px 0 0; padding-top: 12px; border-top: 1px dashed rgba(169, 234, 255, .35); color: var(--muted); font-size: 20px; }
+.pay-total strong { color: var(--neon-yellow); font-weight: 400; }
+.pay-form label { display: block; margin-bottom: 12px; color: var(--muted); font-size: 17px; }
+.pay-form input { display: block; width: 100%; min-height: 44px; margin-top: 4px; box-sizing: border-box; }
+.pay-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.pay-actions { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; margin-top: 8px; }
+.pay-note { margin: 12px 0 0; font-size: 15px; }
+@media (max-width: 760px) {
+    .pay-layout { grid-template-columns: minmax(0, 1fr); }
+}
 
 .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; clip-path: inset(50%); }
 

@@ -47,32 +47,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (count($seats) > MAX_SEATS) {
         $errors[] = 'Max ' . MAX_SEATS . ' seats per booking.';
     } else {
-        try {
-            // Save every seat and award the booking rewards atomically.
-            $pdo->beginTransaction();
-            $bookingRef = bin2hex(random_bytes(16));
-            $insert = $pdo->prepare(
-                'INSERT INTO bookings (userID, showtimeID, booking_ref, seat_row, seat_number, price_paid)
-                 VALUES (?, ?, ?, ?, ?, ?)'
-            );
-            foreach ($seats as [$r, $n]) {
-                $insert->execute([$user['userID'], $show['showtimeID'], $bookingRef, $r, $n, $price]);
-            }
-            Gamification::onBooking($pdo, (int) $user['userID'], count($seats), $show['starts_at']);
-            $pdo->commit();
-            flash('success', 'Booked ' . count($seats) . ' seat(s) for ' . $show['title'] . ' - ' . count($seats) * $price . ' kr.');
-            redirect('profile.php?view=tickets');
-        } catch (PDOException $ex) {
-            $pdo->rollBack();
-            // Discard flashes queued by the rolled-back transaction.
-            pull_flashes();
-            if ($ex->getCode() === '23000') {
-                $errors[] = 'Someone just took one of those seats. Pick again.';
-            } else {
-                error_log($ex->getMessage());
-                $errors[] = 'Booking failed. Try again.';
-            }
-        }
+        // Hold the selection until the payment page confirms the booking.
+        $_SESSION['pending_booking'] = [
+            'showtimeID' => (int) $show['showtimeID'],
+            'seats' => array_values($seats),
+        ];
+        redirect('pay.php');
     }
 }
 
