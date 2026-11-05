@@ -2,6 +2,7 @@
 -- Run this in phpMyAdmin (or any MySQL client) against the target database.
 -- Requires movies and theaters to already exist.
 -- Idempotent: existing movie/theater/time combinations are skipped.
+-- Script for creating demo showtimes for the next 14 days via the "cloned" version of the DB on simply
 
 INSERT INTO `showtimes` (movieID, theaterID, starts_at, price)
 SELECT DISTINCT m.movieID, t.theaterID, slot.starts_at, 90

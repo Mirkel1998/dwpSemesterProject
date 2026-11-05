@@ -62,7 +62,7 @@ if (!$ticketsOnly) {
 }
 
 $bookings = $pdo->prepare(
-    'SELECT m.title, s.starts_at, s.showtimeID, t.name, t.city, b.seat_row, b.seat_number,
+    'SELECT b.bookingID, m.title, s.starts_at, s.showtimeID, t.name, t.city, b.seat_row, b.seat_number,
             b.price_paid, b.created_at, b.booking_ref
      FROM bookings b
      JOIN showtimes s ON s.showtimeID = b.showtimeID
@@ -108,19 +108,20 @@ require __DIR__ . '/includes/header.php';
                     && $b['created_at'] === $newestBookingTime
                     && (int) $b['showtimeID'] === $newestShowtimeId);
         ?>
-        <article class="cinema-ticket <?= $isNewestTicket ? 'is-newest' : '' ?>">
+        <a class="cinema-ticket <?= $isNewestTicket ? 'is-newest' : '' ?>" href="ticket.php?id=<?= (int) $b['bookingID'] ?>">
             <div class="cinema-ticket-main">
                 <?php if ($isNewestTicket): ?><span class="newest-ticket-label">NEWEST BOOKING</span><?php endif; ?>
                 <h3><?= e($b['title']) ?></h3>
                 <p><?= e($b['name']) ?> &bull; <?= e($b['city']) ?></p>
                 <time datetime="<?= e(date('c', strtotime($b['starts_at']))) ?>"><?= e(date('D j M, H:i', strtotime($b['starts_at']))) ?></time>
+                <span class="btn small cinema-ticket-see">See ticket</span>
             </div>
             <div class="cinema-ticket-seat">
                 <span>YOUR SEAT</span>
                 <strong><?= chr(64 + (int) $b['seat_row']) ?><?= (int) $b['seat_number'] ?></strong>
             </div>
             <div class="cinema-ticket-price"><?= (int) $b['price_paid'] ?> kr</div>
-        </article>
+        </a>
         <?php endforeach; ?>
     </div>
     <?php endif; ?>
@@ -134,41 +135,48 @@ require __DIR__ . '/includes/header.php';
 </section>
 
 <section class="panel">
-    <h2>ACHIEVEMENTS</h2>
-    <div class="grid small">
-    <?php foreach ($achievements as $a): ?>
-        <div class="badge <?= $a['unlocked_at'] ? 'on' : 'off' ?>">
-            <strong><?= e($a['name']) ?></strong>
-            <p><?= e($a['description']) ?></p>
-            <p class="muted"><?= $a['unlocked_at'] ? 'UNLOCKED' : 'LOCKED' ?> &bull; +<?= (int) $a['xp_reward'] ?> XP</p>
+    <details class="collapsible">
+        <summary><h2>ACHIEVEMENTS <span class="muted">(<?= count(array_filter($achievements, static fn (array $a): bool => (bool) $a['unlocked_at'])) ?>/<?= count($achievements) ?>)</span></h2></summary>
+        <div class="grid small">
+        <?php foreach ($achievements as $a): ?>
+            <div class="badge <?= $a['unlocked_at'] ? 'on' : 'off' ?>">
+                <strong><?= e($a['name']) ?></strong>
+                <p><?= e($a['description']) ?></p>
+                <p class="muted"><?= $a['unlocked_at'] ? 'UNLOCKED' : 'LOCKED' ?> &bull; +<?= (int) $a['xp_reward'] ?> XP</p>
+            </div>
+        <?php endforeach; ?>
         </div>
-    <?php endforeach; ?>
-    </div>
+    </details>
 </section>
 
 <section class="panel">
-    <h2>MY TICKETS</h2>
-    <?php if (!$bookings): ?><p>No tickets yet. <a href="index.php">Pick a movie.</a></p><?php endif; ?>
-    <table>
-    <?php foreach ($bookings as $b): ?>
-        <tr>
-            <td><?= e($b['title']) ?></td>
-            <td><?= e(date('D j M, H:i', strtotime($b['starts_at']))) ?></td>
-            <td><?= e($b['name']) ?>, <?= e($b['city']) ?></td>
-            <td>Seat <?= chr(64 + (int) $b['seat_row']) . (int) $b['seat_number'] ?></td>
-            <td><?= (int) $b['price_paid'] ?> kr</td>
-        </tr>
-    <?php endforeach; ?>
-    </table>
+    <details class="collapsible">
+        <summary><h2>MY TICKETS <span class="muted">(<?= count($bookings) ?>)</span></h2></summary>
+        <?php if (!$bookings): ?><p>No tickets yet. <a href="index.php">Pick a movie.</a></p><?php endif; ?>
+        <table>
+        <?php foreach ($bookings as $b): ?>
+            <tr>
+                <td><a href="ticket.php?id=<?= (int) $b['bookingID'] ?>"><?= e($b['title']) ?></a></td>
+                <td><?= e(date('D j M, H:i', strtotime($b['starts_at']))) ?></td>
+                <td><?= e($b['name']) ?>, <?= e($b['city']) ?></td>
+                <td>Seat <?= chr(64 + (int) $b['seat_row']) . (int) $b['seat_number'] ?></td>
+                <td><?= (int) $b['price_paid'] ?> kr</td>
+                <td><a class="btn small" href="ticket.php?id=<?= (int) $b['bookingID'] ?>">See ticket</a></td>
+            </tr>
+        <?php endforeach; ?>
+        </table>
+    </details>
 </section>
 
 <section class="panel">
-    <h2>XP LOG</h2>
-    <table>
-    <?php foreach ($log as $l): ?>
-        <tr><td>+<?= (int) $l['amount'] ?> XP</td><td><?= e($l['reason']) ?></td><td class="muted"><?= e($l['created_at']) ?></td></tr>
-    <?php endforeach; ?>
-    </table>
+    <details class="collapsible">
+        <summary><h2>XP LOG <span class="muted">(<?= count($log) ?>)</span></h2></summary>
+        <table>
+        <?php foreach ($log as $l): ?>
+            <tr><td>+<?= (int) $l['amount'] ?> XP</td><td><?= e($l['reason']) ?></td><td class="muted"><?= e($l['created_at']) ?></td></tr>
+        <?php endforeach; ?>
+        </table>
+    </details>
 </section>
 <section class="panel">
     <h2>ACCOUNT SETTINGS</h2>

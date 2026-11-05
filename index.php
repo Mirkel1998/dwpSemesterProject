@@ -31,6 +31,11 @@ require __DIR__ . '/includes/header.php';
         <p class="home-hero-description">Find the film, pick your seats, and let the little details make it a night.</p>
         <div class="home-hero-actions">
             <a class="hero-cta" href="movies.php">Explore movies</a>
+            <?php if ($navUser): ?>
+            <a class="btn" href="profile.php">My account</a>
+            <?php else: ?>
+            <a class="btn" href="register.php">Create user</a>
+            <?php endif; ?>
             <a class="hero-secondary-link" href="movies.php#genre-tiles">Browse by genre <span aria-hidden="true">↓</span></a>
         </div>
         <div class="hero-perks" aria-label="Booking information">
